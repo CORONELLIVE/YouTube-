@@ -5,6 +5,7 @@ import tempfile
 import shutil
 import subprocess
 import yt_dlp
+import imageio_ffmpeg
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 4096
@@ -23,10 +24,9 @@ def download():
     mode = request.form.get("mode", "video")
     if not valid_url(url) or mode not in {"video", "audio"}:
         return jsonify(error="Enlace o formato no válido."), 400
-    if not shutil.which("ffmpeg"):
-        return jsonify(error="Instala FFmpeg antes de descargar."), 503
     directory = Path(tempfile.mkdtemp(prefix="ytapp_"))
     options = {
+        "ffmpeg_location": imageio_ffmpeg.get_ffmpeg_exe(),
         "outtmpl": str(directory / "%(title).100s-%(id)s.%(ext)s"),
         "noplaylist": True,
         "restrictfilenames": True,
